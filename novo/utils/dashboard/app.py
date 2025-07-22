@@ -364,5 +364,7 @@ if __name__ == "__main__":
             }
             """)
     
-    # Iniciar servidor
-    uvicorn.run("dashboard.app:app", host="0.0.0.0", port=8000, reload=True)
+    # Iniciar servidor na porta padrão do Replit
+    port = int(os.getenv("DASHBOARD_PORT", 5000))
+    host = os.getenv("DASHBOARD_HOST", "0.0.0.0")
+    uvicorn.run("utils.dashboard.app:app", host=host, port=port, reload=True)

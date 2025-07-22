@@ -108,10 +108,14 @@ def main():
     parser.add_argument('--output-dir', type=str, required=False, 
                         help='Diretório para salvar os resultados')
     args = parser.parse_args()
-    
+
+    # Criar diretório base se não existir
+    base_output = Path("novo/youtube_automation/output")
+    base_output.mkdir(exist_ok=True, parents=True)
+
     output_dir = args.output_dir
     if not output_dir:
-        output_dir = Path("output") / datetime.datetime.now().strftime("%Y-%m-%d_content")
+        output_dir = base_output / datetime.datetime.now().strftime("%Y-%m-%d_content")
     else:
         output_dir = Path(output_dir)
     

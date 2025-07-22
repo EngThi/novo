@@ -48,21 +48,38 @@ def download_unsplash_image(query, width=1280, height=720):
             response = requests.get(
                 "https://api.unsplash.com/search/photos",
                 headers={"Authorization": f"Client-ID {api_key}"},
-                params={"query": query, "per_page": 1}
+                params={"query": query, "per_page": 1, "orientation": "landscape"}
             )
-            
+
             data = response.json()
-            
+
             if "results" in data and len(data["results"]) > 0:
                 img_url = data["results"][0]["urls"]["regular"]
-                img_response = requests.get(img_url)
-                return img_response.content
-        
-        # Fallback: usar Unsplash Source (sem API key)
+                img_response = requests.get(img_url, timeout=30)
+                if img_response.status_code == 200:
+                    return img_response.content
+
+        # Fallback: usar Pexels API se disponível
+        pexels_key = os.getenv("PEXELS_API_KEY")
+        if pexels_key:
+            response = requests.get(
+                "https://api.pexels.com/v1/search",
+                headers={"Authorization": pexels_key},
+                params={"query": query, "per_page": 1, "orientation": "landscape"}
+            )
+
+            data = response.json()
+            if "photos" in data and len(data["photos"]) > 0:
+                img_url = data["photos"][0]["src"]["large"]
+                img_response = requests.get(img_url, timeout=30)
+                if img_response.status_code == 200:
+                    return img_response.content
+
+        # Fallback final: usar Unsplash Source (sem API key)
         url = f"https://source.unsplash.com/{width}x{height}/?{query.replace(' ', '+')}"
-        response = requests.get(url)
+        response = requests.get(url, timeout=30)
         return response.content
-    
+
     except Exception as e:
         logger.error(f"Erro ao baixar imagem: {e}")
         return None
