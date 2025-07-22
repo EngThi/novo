@@ -58,6 +58,12 @@ def generate_script(topic, output_dir):
             "raw_script": raw_script,
             "sections": extract_script_sections(raw_script)
         }
+
+        # Gerar também os segmentos para o processamento de imagem
+        segments = generate_segments_from_script(script_data)
+        segments_file = output_dir / "segments.json"
+        with open(segments_file, "w", encoding="utf-8") as f:
+            json.dump(segments, f, ensure_ascii=False, indent=2)
         
         # Criar diretórios de assets no output
         assets_dir = output_dir / "assets"
@@ -134,6 +140,32 @@ def extract_script_sections(raw_script):
         sections.append(current_section)
     
     return sections
+
+def generate_segments_from_script(script_data):
+    """Gera segmentos para processamento de imagem a partir do roteiro"""
+    segments = []
+
+    for i, section in enumerate(script_data.get("sections", [])):
+        # Extrair prompt de imagem das diretrizes
+        image_prompt = section.get("image_guidance", "")
+        if not image_prompt:
+            # Gerar prompt baseado no texto
+            text_words = section.get("text", "").split()[:10]
+            image_prompt = " ".join(text_words)
+
+        segment = {
+            "id": i,
+            "title": section.get("title", f"Segmento {i+1}"),
+            "text": section.get("text", ""),
+            "timestamp": section.get("timestamp", "00:00"),
+            "timestamp_seconds": section.get("timestamp_seconds", 0),
+            "image_prompt": image_prompt,
+            "image_file": ""  # Será preenchido pelo image_processor
+        }
+
+        segments.append(segment)
+
+    return segments
 
 def main():
     """Função principal do gerador de roteiro"""

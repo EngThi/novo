@@ -8,4 +8,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd novo && python3 pipeline_integrado.py"
+args = "cd novo && python pipeline_integrado.py"
