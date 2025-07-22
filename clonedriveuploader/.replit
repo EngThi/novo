@@ -1,0 +1,29 @@
+modules = ["c-clang14", "python-3.11", "python-3.12"]
+run = "uvicorn undefined:app --host 0.0.0.0 --port 3000"
+
+[nix]
+channel = "stable-24_05"
+packages = ["ffmpeg-full", "imagemagickBig"]
+
+[deployment]
+run = ["sh", "-c", "uvicorn undefined:app --host 0.0.0.0 --port 3000"]
+
+[workflows]
+runButton = "Run Backend"
+
+[[workflows.workflow]]
+name = "Run Backend"
+author = 45336710
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd drive-uploader/backend && python main.py"
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
+
+[[ports]]
+localPort = 8080
+externalPort = 80

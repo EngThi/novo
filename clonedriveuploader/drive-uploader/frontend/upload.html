@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Drive Uploader – Upload</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav>
+    <span id="user-info"></span>
+    <button id="logout-btn">Logout</button>
+  </nav>
+  <main>
+    <h2>Selecione arquivos para enviar</h2>
+    <div id="drop-zone">Arraste arquivos aqui</div>
+    <input type="file" id="file-input" multiple />
+    <ul id="file-list"></ul>
+  </main>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="script.js"></script>
+</body>
+</html>

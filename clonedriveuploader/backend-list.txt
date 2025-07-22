@@ -1,0 +1,9 @@
+total 44
+-rw-rw-rw-  1 codespace codespace 11075 Jul 19 20:39 README.md
+-rw-rw-rw-  1 codespace codespace     0 Jul 21 00:23 __init__.py
+drwxrwxrwx+ 2 codespace codespace  4096 Jul 21 11:54 __pycache__
+-rw-rw-rw-  1 codespace codespace  8588 Jul 19 20:38 backend-README.md
+-rw-rw-rw-  1 codespace codespace  2130 Jul 21 00:23 drive_client.py
+-rw-rw-rw-  1 codespace codespace  3454 Jul 21 11:47 main.py
+-rw-rw-rw-  1 codespace codespace   131 Jul 21 11:19 requirements.txt
+drwxrwxrwx+ 5 codespace codespace  4096 Jul 19 20:59 venv

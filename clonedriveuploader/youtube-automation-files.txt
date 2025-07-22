@@ -1,0 +1,20 @@
+total 96
+-rw-rw-rw-  1 codespace codespace  2672 Jul 20 19:54 README.md
+-rw-rw-rw-  1 codespace codespace     0 Jul 20 22:13 __init__.py
+drwxrwxrwx+ 2 codespace codespace  4096 Jul 20 23:57 __pycache__
+-rw-rw-rw-  1 codespace codespace  6562 Jul 20 19:54 assembly.py
+-rw-rw-rw-  1 codespace codespace  3673 Jul 20 19:54 assets.py
+drwxrwxrwx+ 2 codespace codespace  4096 Jul 20 19:54 config
+-rw-rw-rw-  1 codespace codespace  2111 Jul 20 19:54 creative.py
+-rw-rw-rw-  1 codespace codespace  2504 Jul 20 19:54 feedback.py
+-rw-rw-rw-  1 codespace codespace   439 Jul 20 19:54 google-drive-credentials.json.json
+-rw-rw-rw-  1 codespace codespace  1382 Jul 20 19:54 imagen_module.py
+-rw-rw-rw-  1 codespace codespace  2168 Jul 20 19:54 intelligence.py
+-rw-rw-rw-  1 codespace codespace  5107 Jul 20 22:56 main.py
+-rw-rw-rw-  1 codespace codespace   585 Jul 20 19:54 merge_audio.py
+-rw-rw-rw-  1 codespace codespace   929 Jul 20 19:54 notebooks_sd15_generation.ipynb
+-rw-rw-rw-  1 codespace codespace     0 Jul 20 19:54 requirements.txt
+-rw-rw-rw-  1 codespace codespace   371 Jul 20 19:54 run_tts.py
+-rw-rw-rw-  1 codespace codespace 22881 Jul 20 19:54 sdxl_generation.ipynb
+-rw-rw-rw-  1 codespace codespace  1924 Jul 20 19:54 sdxl_module.py
+-rw-rw-rw-  1 codespace codespace  1365 Jul 20 19:54 tts_module.py

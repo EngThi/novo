@@ -1,0 +1,73 @@
+Como "Arrumar" Este Novo Alerta (e Reforçar a Segurança)
+
+A "correção" para este alerta é a mesma do alerta anterior, porque ambos apontam para a mesma raiz do problema: como o command é formado e se ele contém dados controlados por um atacante.
+
+Passo 2: (Reiterando e Focando) Revise o SEU CÓDIGO para a Função anyio.run_process
+
+Este é o ponto onde você, como desenvolvedor, interage com o AnyIO para executar comandos.
+
+Procure em seu projeto (seus arquivos .py, fora da pasta venv/) por todas as chamadas à função anyio.run_process().
+
+Para CADA chamada de anyio.run_process() no seu código, siga estas diretrizes essenciais:
+
+
+
+Prefira SEMPRE passar o command como uma list de strings (seguro por padrão):
+
+Quando command é uma lista de strings (por exemplo, ["ls", "-l", "/tmp"]), o AnyIO (e o asyncio por baixo) garante que cada item da lista seja tratado como um argumento separado. Isso é a forma mais segura de evitar injeção de comando, pois o shell não é usado para interpretar o comando (a menos que você explicitamente defina shell=True, o que é desaconselhado).
+
+Exemplo Correto e Preferível:
+
+
+
+Python
+
+
+
+# Código no seu arquivo 'app.py' ou 'main.py'import anyioasync def get_file_content(filename: str):
+
+    # Valide 'filename' rigorosamente antes de usá-lo!
+
+    # Por exemplo, verifique se não contém caracteres de caminho perigosos como '..', '/', etc.
+
+    # E NUNCA confie em entrada de usuário para nomes de arquivo diretamente!
+
+    if not filename.replace('.', '').isalnum(): # Exemplo MUITO SIMPLES e não completo de validação
+
+        raise ValueError("Filename contém caracteres inválidos.")
+
+
+
+    try:
+
+        # 'shell=False' é o padrão para anyio.run_process quando 'command' é uma lista
+
+        # Não é preciso explicitamente especificar 'shell=False', mas ajuda na clareza.
+
+        result = await anyio.run_process(["cat", filename], check=False)
+
+        return result.stdout.decode().strip()
+
+    except anyio.CalledProcessError as e:
+
+        print(f"Erro ao executar comando: {e.returncode}, {e.stderr.decode()}")
+
+        return None# Chamada segura (supondo que "meu_documento.txt" é um nome de arquivo validado)# await get_file_content("meu_documento.txt")
+
+Nunca faça isso se user_input vier de uma fonte não confiável:
+
+
+
+Python
+
+
+
+# CÓDIGO POTENCIALMENTE INSEGURO!# NÃO FAÇA ISSO SE 'user_input' NÃO FOR VALIDADO E ESCAPADO.
+
+user_input = "meu_arquivo; rm -rf /"# Isso resultaria em `command` sendo ["meu_arquivo; rm -rf /"],# e o 'cat' tentaria abrir um arquivo com esse nome.# A injeção ocorreria se 'shell=True' fosse usado e 'user_input' não fosse escapado.# Mas mesmo com shell=False, passar um comando composto pode levar a erros inesperados# se o programa 'cat' não souber lidar com ele.await anyio.run_process(["cat", user_input])
+
+O aviso atual está reforçando que, mesmo que você passe a lista, se o item da lista user_input contiver uma string que o shell (se shell=True for usado) ou o programa (cat neste caso) possa interpretar como algo malicioso, ainda é um problema.
+
+Evite usar command como uma única string (que implica shell=True) com entradas de usuário:
+
+Se você passar command como uma única string (ex: "ls -l /tmp") em anyio.run_process(), o AnyIO internamente chamará asyncio.create_subprocess_shell(). Isso significa que o shell do sistema operacional será usado para interpretar o comando, o que é um risco muito maior para injeção de comando.

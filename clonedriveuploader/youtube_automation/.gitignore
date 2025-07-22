@@ -1,0 +1,15 @@
+# Ambientes virtuais
+env/
+__pycache__/
+
+# Assets grandes
+assets/audio/
+assets/images/
+assets/videos/
+
+# Arquivos temporários
+*.pyc
+*.pyo
+*.DS_Store
+*.swp
+*.bak

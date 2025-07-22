@@ -1,0 +1,31 @@
+Resumo do Último Commit:
+
+O commit mais recente (ID: 985b79c) foi realizado com a mensagem:
+"Adiciona arquivos importantes da raiz e do drive-uploader, e remove arquivos do youtube-automation."
+
+Este commit incluiu:
+- Adição de novos arquivos importantes localizados na raiz do projeto:
+  - README.md
+  - backend-list.txt
+  - clone-structure.txt
+  - definicoes_run_pipeline.txt
+  - drive-backend-files.txt
+  - inicio_pipeline.txt
+  - output_1753105584TEMP_MPY_wvf_snd.mp4
+  - requirements.txt
+  - youtube-automation-files.txt
+- Adição de arquivos importantes relacionados ao módulo 'drive-uploader':
+  - drive-uploader/__init__.py
+  - drive-uploader/backend/__init__.py
+  - drive-uploader/backend/drive_client.py
+  - drive-uploader/frontend/upload-drive.html
+- Atualização do arquivo .gitignore na raiz.
+- Remoção de todos os arquivos que estavam na pasta 'youtube-automation/', conforme indicado pelas exclusões no 'git status'.
+
+Arquivos Não Incluídos no Commit:
+
+1.  drive-uploader/backend/.env
+    - Motivo: Arquivos '.env' geralmente contêm informações sensíveis (como chaves de API, credenciais de banco de dados, etc.) que não devem ser versionadas em sistemas de controle de versão como o Git. É uma prática de segurança padrão manter esses arquivos fora do repositório.
+
+2.  youtube_automation/__init__.py
+    - Motivo: Este arquivo foi modificado, mas não foi explicitamente adicionado ao stage para este commit. Arquivos '__init__.py' são usados para marcar diretórios como pacotes Python e podem conter código de inicialização. A modificação pode ser pequena ou não relacionada ao propósito deste commit específico. Se as alterações neste arquivo forem importantes, elas precisarão ser adicionadas e commitadas separadamente.
