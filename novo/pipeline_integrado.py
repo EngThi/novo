@@ -201,21 +201,36 @@ class PipelineIntegrado:
             logger.error(f"Erro no processamento de imagens: {e}")
             return False
     
+    def montar_video(self):
+        """Monta o vídeo final"""
+        logger.info(f"Montando vídeo final: {self.project_name}")
+
+        try:
+            # Executa o script de montagem de vídeo
+            os.system(f"cd {YOUTUBE_AUTOMATION_DIR} && python video_assembler.py --output-dir {self.output_dir}")
+
+            # Atualiza status
+            self._update_sheet_status(self.row_index, "Vídeo Montado")
+            return True
+        except Exception as e:
+            logger.error(f"Erro na montagem do vídeo: {e}")
+            return False
+
     def upload_drive(self):
         """Upload de arquivos para o Google Drive"""
         logger.info(f"Realizando upload para o Drive: {self.project_name}")
-        
+
         try:
-            # Executa o script de upload do Drive
-            result = os.system(f"cd {DRIVE_UPLOADER_DIR}/backend && python upload.py --input-dir {self.output_dir}")
-            
+            # Executa o script de upload do Drive usando o drive_uploader.py local
+            result = os.system(f"python drive_uploader.py --input-dir {self.output_dir} --project-name '{self.project_name}'")
+
             # Obtém URL do Google Drive da saída do upload (se disponível)
             drive_url = None
             url_file = self.output_dir / "drive_url.txt"
             if url_file.exists():
                 with open(url_file, 'r') as f:
                     drive_url = f.read().strip()
-            
+
             # Atualiza status
             self._update_sheet_status(self.row_index, "Upload Concluído", drive_url)
             return result == 0
@@ -240,12 +255,17 @@ class PipelineIntegrado:
                     if self.processar_imagens():
                         logger.info("✓ Etapa 4: Processamento de imagens concluído")
                         
-                        if self.upload_drive():
-                            logger.info("✓ Etapa 5: Upload para Google Drive concluído")
-                            logger.info("Pipeline concluído com sucesso!")
-                            return True
+                        if self.montar_video():
+                            logger.info("✓ Etapa 5: Montagem de vídeo concluída")
+
+                            if self.upload_drive():
+                                logger.info("✓ Etapa 6: Upload para Google Drive concluído")
+                                logger.info("Pipeline concluído com sucesso!")
+                                return True
+                            else:
+                                logger.error("✗ Etapa 6: Falha no upload para Google Drive")
                         else:
-                            logger.error("✗ Etapa 5: Falha no upload para Google Drive")
+                            logger.error("✗ Etapa 5: Falha na montagem do vídeo")
                     else:
                         logger.error("✗ Etapa 4: Falha no processamento de imagens")
                 else:

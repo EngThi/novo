@@ -1,0 +1,11 @@
+[workflows]
+runButton = "Run Pipeline"
+
+[[workflows.workflow]]
+name = "Run Pipeline"
+author = 44607185
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd novo && python3 pipeline_integrado.py"
