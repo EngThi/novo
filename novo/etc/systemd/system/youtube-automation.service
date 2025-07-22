@@ -1,0 +1,19 @@
+[Unit]
+Description=YouTube Automation Pipeline Service
+After=network.target
+
+[Service]
+Type=simple
+User=seu_usuario
+WorkingDirectory=/caminho/para/clone_drive_uploader
+ExecStart=/usr/bin/python3 pipeline_integrado.py --schedule
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=youtube-automation
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target

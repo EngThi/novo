@@ -1,0 +1,5 @@
+mkdir -p utils
+# Crie o arquivo sheets_manager.py conforme mostrado acima
+python utils/sheets_manager.py create "Pipeline de Vídeos"
+
+Copie o ID gerado e adicione-o ao seu arquivo .env.

@@ -1,0 +1,11 @@
+Opção 1 - Usando SystemD (para Linux/servidor):
+
+sudo cp etc/systemd/system/youtube-automation.service /etc/systemd/system/
+sudo systemctl enable youtube-automation.service
+sudo systemctl start youtube-automation.service
+
+Opção 2 - Usando GitHub Actions:
+
+Adicione a configuração do workflow mostrada anteriormente em .github/workflows/daily-content-automation.yml
+Adicione seus secrets no repositório GitHub (GEMINI_API_KEY, GOOGLE_CREDENTIALS)
+O workflow será executado automaticamente às 3h da manhã ou você pode executá-lo manualmente pela interface do GitHub

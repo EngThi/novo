@@ -1,0 +1,3 @@
+pip install -r youtube_automation/requirements.txt
+pip install -r drive-uploader/backend/requirements.txt
+pip install schedule python-dotenv
