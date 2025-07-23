@@ -1,5 +1,5 @@
 
-# Google APIs
+# Google APIs e IA
 google-api-python-client>=2.0.0
 google-auth-httplib2>=0.1.0
 google-auth-oauthlib>=0.5.0
@@ -27,11 +27,21 @@ python-multipart>=0.0.6
 python-dotenv>=1.0.0
 schedule>=1.2.0
 psutil>=5.9.0
-pathlib>=1.0.1
 
-# Dependências adicionais para funcionalidade completa
+# Análise de tendências
 pytrends>=4.9.0
 beautifulsoup4>=4.12.0
 selenium>=4.15.0
+
+# Testes
 pytest>=7.4.0
 unittest-xml-reporting>=3.2.0
+
+# Desenvolvimento e debugging
+ipython>=8.0.0
+jupyter>=1.0.0
+
+# Compatibilidade e utilitários extras
+pathlib2>=2.3.0
+dataclasses>=0.6
+typing-extensions>=4.0.0
