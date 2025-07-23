@@ -1,0 +1,30 @@
+# Arquivos de ambiente - NUNCA comitar!
+.env
+
+# Arquivos de credenciais e tokens
+google-drive-credentials.json
+token.pickle
+token.json
+
+# Logs
+logs/
+*.log
+
+# Diretórios de output e temporários
+output/
+temp/
+data/
+
+# Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Dependências e ambiente virtual
+venv/
+.venv/
+env/
+.env/
+pip-wheel-metadata/
+google-drive-credentials.json
