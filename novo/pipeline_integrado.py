@@ -38,6 +38,7 @@ class PipelineIntegrado:
         self.project_name = None
         self.output_dir = None
         self.status_sheet = None
+        self.row_index = None  # Inicializar row_index
         
         # Verifica se os diretórios necessários existem
         self._check_directories()
@@ -72,7 +73,8 @@ class PipelineIntegrado:
     
     def _update_sheet_status(self, row_index, status, url=None):
         """Atualiza o status na planilha de tracking"""
-        if not self.status_sheet or not SHEETS_TRACKING_ID:
+        if not self.status_sheet or not SHEETS_TRACKING_ID or not row_index:
+            logger.info(f"Status local: {status}" + (f" - URL: {url}" if url else ""))
             return
         
         try:
@@ -117,10 +119,20 @@ class PipelineIntegrado:
             
             # Cria diretório de saída específico para este projeto
             self.output_dir = OUTPUT_BASE_DIR / f"{self.today_date}_{self.project_name.replace(' ', '_')}"
-            self.output_dir.mkdir(exist_ok=True)
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Criar subdiretórios necessários
+            (self.output_dir / "images").mkdir(exist_ok=True)
+            (self.output_dir / "audio").mkdir(exist_ok=True)
+            (self.output_dir / "temp").mkdir(exist_ok=True)
             
             # Executa o script de descoberta de conteúdo
-            os.system(f"cd {YOUTUBE_AUTOMATION_DIR} && python content_discovery.py --output-dir {self.output_dir}")
+            cmd = f"cd {YOUTUBE_AUTOMATION_DIR} && python content_discovery.py --output-dir {self.output_dir.absolute()}"
+            result = os.system(cmd)
+            
+            if result != 0:
+                logger.error(f"Comando de descoberta falhou com código: {result}")
+                return False
             
             # Atualiza status
             self._update_sheet_status(self.row_index, "Conteúdo Descoberto")
@@ -132,6 +144,7 @@ class PipelineIntegrado:
     def _obter_proximo_projeto(self):
         """Obtém o próximo projeto da planilha de tracking"""
         if not self.status_sheet or not SHEETS_TRACKING_ID:
+            logger.info("Sheets não configurado, usando projeto automático")
             return None
         
         try:
@@ -144,10 +157,13 @@ class PipelineIntegrado:
             rows = result.get('values', [])
             for i, row in enumerate(rows, start=2):  # Começamos do índice 2 pois A1 é cabeçalho
                 # Verifica se há um projeto pendente (status vazio ou "Pendente")
-                if len(row) >= 4 and (len(row) < 4 or row[3] == "" or row[3] == "Pendente"):
-                    self.row_index = i
-                    return row[0] if len(row) > 0 else None
+                if len(row) >= 1:  # Pelo menos deve ter nome do projeto
+                    status = row[3] if len(row) > 3 else ""
+                    if status in ["", "Pendente", "Aguardando"]:
+                        self.row_index = i
+                        return row[0] if len(row) > 0 else None
             
+            logger.info("Nenhum projeto pendente encontrado na planilha")
             return None
         except Exception as e:
             logger.error(f"Erro ao buscar próximo projeto: {e}")

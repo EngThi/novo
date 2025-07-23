@@ -29,3 +29,12 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd novo && chmod +x setup.sh && ./setup.sh"
+
+[[workflows.workflow]]
+name = "Check Environment"
+author = 44607185
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd novo && python3 check_environment.py"

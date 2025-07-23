@@ -193,12 +193,32 @@ def main():
     
     args = parser.parse_args()
     output_dir = Path(args.output_dir)
-    output_dir.mkdir(exist_ok=True)
     
-    discovery = ContentDiscovery()
-    result = discovery.discover_content(output_dir)
+    # Criar diretório com todos os pais necessários
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Diretório de saída criado/verificado: {output_dir}")
+    except Exception as e:
+        logger.error(f"Erro ao criar diretório {output_dir}: {e}")
+        sys.exit(1)
     
-    print(f"✅ Descoberta concluída: {result['selected_topic'].get('title', 'Tópico selecionado')}")
+    try:
+        discovery = ContentDiscovery()
+        result = discovery.discover_content(output_dir)
+        
+        topic_title = "Tópico selecionado"
+        if isinstance(result.get('selected_topic'), dict):
+            topic_title = result['selected_topic'].get('title', topic_title)
+        elif isinstance(result.get('selected_topic'), str):
+            topic_title = result['selected_topic']
+        
+        print(f"✅ Descoberta concluída: {topic_title}")
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Erro na descoberta de conteúdo: {e}")
+        print(f"❌ Erro na descoberta: {e}")
+        return 1
 
 if __name__ == "__main__":
     main()

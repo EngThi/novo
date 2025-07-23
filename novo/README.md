@@ -1,4 +1,3 @@
-
 # 🎬 Pipeline de Automação de Vídeos para YouTube
 
 Sistema completo e automatizado para criação de conteúdo em vídeo, desde a descoberta de tópicos até o upload no Google Drive.
@@ -23,21 +22,22 @@ Sistema completo e automatizado para criação de conteúdo em vídeo, desde a d
   - Google Generative AI (Gemini)
   - Google Sheets API (opcional)
 
-## ⚡ Instalação Rápida
+## 🚀 Início Rápido
 
-### 1. Clone e Configure
+### Pré-requisitos
+
+- Python 3.8+
+- Credenciais do Google Drive API
+- Chaves de API (Gemini, YouTube, etc.)
+
+### Instalação
 
 ```bash
-# Clone o repositório
-git clone <repository-url>
-cd novo
+# 1. Executar setup
+chmod +x setup.sh && ./setup.sh
 
-# Execute o script de configuração
-chmod +x setup.sh
-./setup.sh
-
-# Instale dependências
-pip install -r requirements.txt
+# 2. Verificar ambiente (recomendado)
+python3 check_environment.py
 ```
 
 ### 2. Configure Credenciais
@@ -146,7 +146,7 @@ graph TD
     D --> E[Montagem de Vídeo]
     E --> F[Upload para Google Drive]
     F --> G[Atualização de Tracking]
-    
+
     H[Google Sheets] --> A
     G --> H
 ```
