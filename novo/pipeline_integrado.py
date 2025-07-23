@@ -27,8 +27,8 @@ load_dotenv()
 
 # Configuração de caminhos
 YOUTUBE_AUTOMATION_DIR = Path("youtube_automation")
-DRIVE_UPLOADER_DIR = Path("drive-uploader")
-OUTPUT_BASE_DIR = YOUTUBE_AUTOMATION_DIR / "output"
+OUTPUT_BASE_DIR = Path("output")
+LOGS_DIR = Path("logs")
 CREDENTIALS_PATH = os.getenv("DRIVE_CREDENTIALS_PATH", "google-drive-credentials.json")
 SHEETS_TRACKING_ID = os.getenv("SHEETS_TRACKING_ID", "")  # ID da planilha para tracking
 
@@ -51,13 +51,10 @@ class PipelineIntegrado:
         if not YOUTUBE_AUTOMATION_DIR.exists():
             logger.error(f"Diretório {YOUTUBE_AUTOMATION_DIR} não encontrado!")
             sys.exit(1)
-        
-        if not DRIVE_UPLOADER_DIR.exists():
-            logger.error(f"Diretório {DRIVE_UPLOADER_DIR} não encontrado!")
-            sys.exit(1)
             
-        # Cria o diretório de output se não existir
+        # Cria os diretórios necessários se não existirem
         OUTPUT_BASE_DIR.mkdir(exist_ok=True)
+        LOGS_DIR.mkdir(exist_ok=True)
     
     def _initialize_sheets(self):
         """Inicializa conexão com Google Sheets para tracking"""

@@ -1,154 +1,204 @@
+
+#!/usr/bin/env python3
+"""
+Sistema Avançado de Descoberta de Conteúdo
+Integra múltiplas fontes para descobrir tendências e tópicos relevantes
+"""
+
 import os
+import sys
 import json
-import argparse
-import datetime
 import logging
 import requests
-import google.generativeai as genai
+import argparse
 from pathlib import Path
+from typing import List, Dict, Any
+from datetime import datetime, timedelta
+import google.generativeai as genai
 from dotenv import load_dotenv
 
-# Carregar variáveis de ambiente
+# Configuração
 load_dotenv()
-
-# Configuração de logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def get_youtube_trends():
-    """Obter tópicos em alta do YouTube via API"""
-    try:
-        # Esta função pode ser implementada quando você tiver uma chave API do YouTube
-        # Por enquanto, retornamos um placeholder
-        return ["Tendência YouTube 1", "Tendência YouTube 2", "Tendência YouTube 3"]
-    except Exception as e:
-        logger.error(f"Erro ao buscar tendências do YouTube: {e}")
-        return []
+# Configurar Gemini
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
-def get_google_trends():
-    """Obter tópicos do Google Trends via web scraping ou API"""
-    try:
-        # Abordagem simples via pytrends ou scraping
-        return ["Tendência Google 1", "Tendência Google 2", "Tendência Google 3"]
-    except Exception as e:
-        logger.error(f"Erro ao buscar tendências do Google: {e}")
-        return []
-
-def generate_topic_ideas(trends, num_ideas=5):
-    """Gerar ideias de tópicos baseados nas tendências usando Gemini"""
-    try:
-        # Configurar Gemini
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            logger.error("Chave API do Gemini não encontrada no arquivo .env")
-            return []
+class ContentDiscovery:
+    """Sistema inteligente de descoberta de conteúdo"""
+    
+    def __init__(self):
+        self.youtube_api_key = os.getenv('YOUTUBE_API_KEY')
+        self.trending_topics = []
+        
+        # Tópicos base para quando APIs não estão disponíveis
+        self.fallback_topics = [
+            "Mistérios não resolvidos do Brasil",
+            "Lendas urbanas brasileiras",
+            "Casos criminais famosos",
+            "Fenômenos paranormais",
+            "História oculta do Brasil",
+            "Teorias conspiratórias",
+            "Lugares assombrados",
+            "Desaparecimentos misteriosos"
+        ]
+    
+    def get_youtube_trends(self) -> List[str]:
+        """Obtém tendências do YouTube"""
+        if not self.youtube_api_key:
+            logger.warning("YouTube API key não encontrada, usando tópicos padrão")
+            return self.fallback_topics[:3]
+        
+        try:
+            url = "https://www.googleapis.com/youtube/v3/videos"
+            params = {
+                'part': 'snippet',
+                'chart': 'mostPopular',
+                'regionCode': 'BR',
+                'videoCategoryId': '25',  # Categoria: News & Politics
+                'maxResults': 10,
+                'key': self.youtube_api_key
+            }
             
-        genai.configure(api_key=api_key)
-        
-        # Criar prompt para o Gemini
-        trends_text = "\n".join(trends)
-        prompt = f"""
-        Com base nas seguintes tendências:
-        
-        {trends_text}
-        
-        Gere {num_ideas} ideias de tópicos para vídeos curtos que sejam atraentes e virais.
-        Cada ideia deve:
-        1. Ser relevante para o público brasileiro
-        2. Ter potencial para engajamento
-        3. Ser específica o suficiente para um vídeo de 3-5 minutos
-        
-        Formate sua resposta como uma lista de ideias, cada uma com um título e uma breve descrição.
-        """
-        
-        # Gerar ideias com o Gemini
-        model = genai.GenerativeModel('gemini-1.5-pro')
-        response = model.generate_content(prompt)
-        
-        # Processar a resposta
-        ideas = []
-        lines = response.text.strip().split('\n')
-        current_idea = {}
-        
-        for line in lines:
-            line = line.strip()
-            if line and (line.startswith('- ') or line.startswith('# ') or line.startswith('## ') or line[0].isdigit() and line[1] in ['.', ')']):
-                # Salvar ideia anterior se existir
-                if current_idea and 'title' in current_idea:
-                    ideas.append(current_idea)
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                data = response.json()
+                trends = [item['snippet']['title'] for item in data.get('items', [])]
+                logger.info(f"✅ {len(trends)} tendências obtidas do YouTube")
+                return trends[:5]
+            else:
+                logger.warning(f"Erro na API do YouTube: {response.status_code}")
+                return self.fallback_topics[:3]
                 
-                # Iniciar nova ideia
-                title = line.lstrip('- #0123456789.)').strip()
-                current_idea = {'title': title, 'description': ''}
-            elif current_idea:
-                # Adicionar à descrição
-                if 'description' in current_idea and current_idea['description']:
-                    current_idea['description'] += ' ' + line
-                else:
-                    current_idea['description'] = line
+        except Exception as e:
+            logger.error(f"Erro ao obter tendências: {e}")
+            return self.fallback_topics[:3]
+    
+    def analyze_trends_with_gemini(self, trends: List[str]) -> Dict[str, Any]:
+        """Analisa tendências usando Gemini AI"""
+        if not GEMINI_API_KEY:
+            return self._create_fallback_analysis()
         
-        # Adicionar a última ideia se existir
-        if current_idea and 'title' in current_idea:
-            ideas.append(current_idea)
+        try:
+            model = genai.GenerativeModel('gemini-pro')
+            
+            prompt = f"""
+            Analise as seguintes tendências e tópicos populares: {', '.join(trends)}
+            
+            Com base nessas tendências, sugira 3 tópicos específicos para vídeos sobre mistérios brasileiros que:
+            1. Sejam interessantes para o público brasileiro
+            2. Tenham potencial viral
+            3. Sejam adequados para um canal de mistérios
+            
+            Para cada tópico, forneça:
+            - Título atrativo
+            - Descrição em 2-3 frases
+            - Palavras-chave relevantes
+            - Nível de interesse (1-10)
+            
+            Retorne em formato JSON.
+            """
+            
+            response = model.generate_content(prompt)
+            
+            # Extrair JSON da resposta
+            content = response.text
+            if '```json' in content:
+                json_start = content.find('```json') + 7
+                json_end = content.find('```', json_start)
+                json_content = content[json_start:json_end].strip()
+            else:
+                json_content = content
+            
+            try:
+                analysis = json.loads(json_content)
+                logger.info("✅ Análise de tendências gerada com Gemini")
+                return analysis
+            except json.JSONDecodeError:
+                logger.warning("Resposta do Gemini não está em formato JSON válido")
+                return self._create_fallback_analysis()
+                
+        except Exception as e:
+            logger.error(f"Erro na análise com Gemini: {e}")
+            return self._create_fallback_analysis()
+    
+    def _create_fallback_analysis(self) -> Dict[str, Any]:
+        """Cria análise padrão quando APIs não estão disponíveis"""
+        return {
+            "topics": [
+                {
+                    "title": "O Mistério da Cidade Perdida de Z",
+                    "description": "A busca épica do explorador Percy Fawcett pela cidade perdida na Amazônia que custou sua vida e de sua expedição.",
+                    "keywords": ["amazonia", "cidade perdida", "exploração", "percy fawcett"],
+                    "interest_level": 9
+                },
+                {
+                    "title": "O Caso do Bebê Diabo de São Paulo",
+                    "description": "Em 1976, um caso chocou São Paulo: uma criança nasceu com características estranhas e desapareceu misteriosamente.",
+                    "keywords": ["são paulo", "paranormal", "nascimento", "mistério urbano"],
+                    "interest_level": 8
+                },
+                {
+                    "title": "A Maldição do Ouro de Minas Gerais",
+                    "description": "Famílias inteiras desapareceram após encontrar ouro em cavernas. Coincidência ou maldição ancestral?",
+                    "keywords": ["minas gerais", "ouro", "maldição", "desaparecimento"],
+                    "interest_level": 7
+                }
+            ],
+            "generation_method": "fallback",
+            "timestamp": datetime.now().isoformat()
+        }
+    
+    def discover_content(self, output_dir: Path) -> Dict[str, Any]:
+        """Processo completo de descoberta de conteúdo"""
+        logger.info("🔍 Iniciando descoberta de conteúdo...")
         
-        # Limitar ao número desejado
-        return ideas[:num_ideas]
+        # 1. Obter tendências
+        trends = self.get_youtube_trends()
         
-    except Exception as e:
-        logger.error(f"Erro ao gerar ideias com Gemini: {e}")
-        return []
+        # 2. Analisar com IA
+        analysis = self.analyze_trends_with_gemini(trends)
+        
+        # 3. Selecionar melhor tópico
+        topics = analysis.get('topics', [])
+        if topics:
+            selected_topic = max(topics, key=lambda x: x.get('interest_level', 0))
+        else:
+            selected_topic = self.fallback_topics[0]
+        
+        # 4. Criar resultado
+        result = {
+            "discovered_trends": trends,
+            "analysis": analysis,
+            "selected_topic": selected_topic,
+            "discovery_timestamp": datetime.now().isoformat(),
+            "discovery_method": "automated_ai_analysis"
+        }
+        
+        # 5. Salvar resultado
+        discovery_file = output_dir / "content_discovery.json"
+        with open(discovery_file, 'w', encoding='utf-8') as f:
+            json.dump(result, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"✅ Descoberta completa! Tópico selecionado: {selected_topic.get('title', selected_topic)}")
+        return result
 
 def main():
-    """Função principal de descoberta de conteúdo"""
-    # Parse arguments
-    parser = argparse.ArgumentParser(description='Descubra tópicos em alta para conteúdo')
-    parser.add_argument('--output-dir', type=str, required=False, 
-                        help='Diretório para salvar os resultados')
+    """Função principal para execução standalone"""
+    parser = argparse.ArgumentParser(description='Descoberta de Conteúdo')
+    parser.add_argument('--output-dir', required=True, help='Diretório de saída')
+    
     args = parser.parse_args()
-
-    # Criar diretório base se não existir
-    base_output = Path("novo/youtube_automation/output")
-    base_output.mkdir(exist_ok=True, parents=True)
-
-    output_dir = args.output_dir
-    if not output_dir:
-        output_dir = base_output / datetime.datetime.now().strftime("%Y-%m-%d_content")
-    else:
-        output_dir = Path(output_dir)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(exist_ok=True)
     
-    # Criar diretório se não existir
-    output_dir.mkdir(exist_ok=True, parents=True)
+    discovery = ContentDiscovery()
+    result = discovery.discover_content(output_dir)
     
-    # Obter tendências
-    logger.info("Buscando tendências do YouTube e Google...")
-    youtube_trends = get_youtube_trends()
-    google_trends = get_google_trends()
-    all_trends = list(set(youtube_trends + google_trends))
-    
-    # Gerar ideias
-    logger.info("Gerando ideias de tópicos com Gemini...")
-    topic_ideas = generate_topic_ideas(all_trends)
-    
-    # Preparar resultado
-    result = {
-        "date": datetime.datetime.now().strftime("%Y-%m-%d"),
-        "trends": all_trends,
-        "topic_ideas": topic_ideas
-    }
-    
-    # Salvar resultado
-    output_file = output_dir / "content_ideas.json"
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False, indent=2)
-    
-    logger.info(f"Descoberta de conteúdo concluída! Ideias salvas em {output_file}")
-    
-    # Exibir algumas ideias geradas
-    for i, idea in enumerate(topic_ideas, 1):
-        logger.info(f"Ideia #{i}: {idea['title']}")
+    print(f"✅ Descoberta concluída: {result['selected_topic'].get('title', 'Tópico selecionado')}")
 
 if __name__ == "__main__":
     main()

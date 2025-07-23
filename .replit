@@ -11,3 +11,21 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd novo && python3 pipeline_integrado.py"
+
+[[workflows.workflow]]
+name = "Test System"
+author = 44607185
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd novo && python3 test_pipeline.py"
+
+[[workflows.workflow]]
+name = "Setup Environment"
+author = 44607185
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd novo && chmod +x setup.sh && ./setup.sh"
