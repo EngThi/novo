@@ -1,0 +1,59 @@
+{
+  "discovered_trends": [
+    "Mistérios não resolvidos do Brasil",
+    "Lendas urbanas brasileiras",
+    "Casos criminais famosos"
+  ],
+  "analysis": {
+    "topics": [
+      {
+        "title": "O Mistério da Cidade Perdida de Z",
+        "description": "A busca épica do explorador Percy Fawcett pela cidade perdida na Amazônia que custou sua vida e de sua expedição.",
+        "keywords": [
+          "amazonia",
+          "cidade perdida",
+          "exploração",
+          "percy fawcett"
+        ],
+        "interest_level": 9
+      },
+      {
+        "title": "O Caso do Bebê Diabo de São Paulo",
+        "description": "Em 1976, um caso chocou São Paulo: uma criança nasceu com características estranhas e desapareceu misteriosamente.",
+        "keywords": [
+          "são paulo",
+          "paranormal",
+          "nascimento",
+          "mistério urbano"
+        ],
+        "interest_level": 8
+      },
+      {
+        "title": "A Maldição do Ouro de Minas Gerais",
+        "description": "Famílias inteiras desapareceram após encontrar ouro em cavernas. Coincidência ou maldição ancestral?",
+        "keywords": [
+          "minas gerais",
+          "ouro",
+          "maldição",
+          "desaparecimento"
+        ],
+        "interest_level": 7
+      }
+    ],
+    "generation_method": "fallback",
+    "timestamp": "2025-07-23T00:55:25.055927"
+  },
+  "selected_topic": {
+    "title": "O Mistério da Cidade Perdida de Z",
+    "description": "A busca épica do explorador Percy Fawcett pela cidade perdida na Amazônia que custou sua vida e de sua expedição.",
+    "keywords": [
+      "amazonia",
+      "cidade perdida",
+      "exploração",
+      "percy fawcett"
+    ],
+    "interest_level": 9
+  },
+  "discovery_timestamp": "2025-07-23T00:55:25.055940",
+  "discovery_method": "automated_ai_analysis"
+}
