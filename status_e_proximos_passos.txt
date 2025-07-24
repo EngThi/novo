@@ -1,0 +1,42 @@
+# Status do Projeto e Próximos Passos (Atualizado)
+
+## Onde Estamos (Resumo Técnico)
+
+Confirmamos que o upload de arquivos para o Google Drive é o principal bloqueio do pipeline. A abordagem original usando uma **Conta de Serviço** falhou consistentemente com o erro `storageQuotaExceeded`, pois contas de serviço não podem ter arquivos em um "Meu Drive" pessoal.
+
+Para resolver isso, mudamos a estratégia para usar o **fluxo de consentimento OAuth 2.0**. Isso permitirá que o pipeline Node.js atue em seu nome, usando suas permissões e cota de armazenamento do Google Drive, eliminando a necessidade dos scripts Python e da Conta de Serviço para o upload.
+
+No entanto, ao tentar gerar o link de autorização, encontramos o erro `401: invalid_client`. Isso significa que as credenciais de Cliente OAuth 2.0 que estamos usando não são mais válidas ou foram excluídas no Google Cloud.
+
+---
+
+## A Solução: Autenticação OAuth 2.0 com Novas Credenciais
+
+A solução é gerar um `refresh_token` para o pipeline usar. Para isso, precisamos de um novo conjunto de credenciais de Cliente OAuth 2.0. Com o `refresh_token`, o pipeline poderá autenticar-se de forma autônoma e fazer o upload dos arquivos diretamente para o seu Google Drive.
+
+---
+
+## O Que Fazer Agora (Plano de Ação OBRIGATÓRIO)
+
+Para que o pipeline funcione, você **precisa** criar novas credenciais e me fornecer as informações.
+
+**1. Crie um Novo Cliente OAuth 2.0:**
+   *   Acesse a página de Credenciais do Google Cloud:
+     **https://console.cloud.google.com/apis/credentials**
+   *   Verifique se você está no projeto correto (`drive-uploader-466418`).
+   *   No topo, clique em **"+ CRIAR CREDENCIAIS"** (+ CREATE CREDENTIALS).
+   *   Selecione **"ID do cliente OAuth"** (OAuth client ID).
+
+**2. Configure o Cliente:**
+   *   Para **"Tipo de aplicativo"** (Application type), escolha **"Aplicativo da Web"** (Web application).
+   *   Dê um nome a ele, como `Pipeline Uploader CLI`.
+   *   Na seção **"URIs de redirecionamento autorizados"** (Authorized redirect URIs), clique em **"+ ADICIONAR URI"** e cole o seguinte valor:
+     `http://localhost`
+   *   Clique no botão **"CRIAR"** (CREATE).
+
+**3. Copie as Novas Credenciais:**
+   *   Uma janela pop-up aparecerá mostrando seu novo **ID do cliente** e **Segredo do cliente**.
+   *   Copie ambos os valores.
+
+**4. Forneça as Novas Credenciais:**
+   *   Na nossa conversa, cole o **ID do cliente** e o **Segredo do cliente** que você acabou de criar. Com eles, eu gerarei um novo link de autorização para finalmente obtermos o `refresh_token` e finalizarmos o pipeline.
